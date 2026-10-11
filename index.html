@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>ANX4 PIRATES</title>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{margin:0;height:100%;overflow:hidden;background:#07090c;color:#eadfc8;font:15px/1.5 Georgia,'Times New Roman',serif;user-select:none;-webkit-user-select:none;touch-action:none}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+h1{font:800 clamp(2rem,7vw,3.6rem)/1 Georgia,serif;letter-spacing:.14em;margin:0 0 .4em;color:#e8c46a;text-shadow:0 0 28px #b3262d}
+button{font:inherit;color:#eadfc8;background:rgba(20,16,12,.8);border:1px solid #6b5326;border-radius:10px;padding:10px 18px;cursor:pointer;touch-action:none}
+button:hover{border-color:#e8c46a}.pri{background:#8e1f26;border-color:#e0545b;font-weight:700;letter-spacing:.12em}
+.scr{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;background:radial-gradient(ellipse at 50% 40%,#2a1512,#07090c 70%);z-index:20}
+.scr[hidden],#hud[hidden],[hidden]{display:none!important}
+.bar{width:min(320px,80vw);height:6px;background:#2a2a2a;border-radius:3px;overflow:hidden;margin:12px 0}.bar i{display:block;height:100%;width:0;background:#c9302c;transition:width .2s}
+.keys{max-width:520px;color:#a89a7c;font-size:.85rem}.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+#hud{position:fixed;inset:0;z-index:10;pointer-events:none}
+#hud button,#hud #joy{pointer-events:auto}
+#stats{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));left:12px;display:flex;flex-direction:column;gap:6px;width:min(220px,50vw)}
+.hp{height:12px;border:1px solid #6b5326;background:#1a1210;border-radius:6px;overflow:hidden}.hp i{display:block;height:100%;width:100%;background:linear-gradient(#e0545b,#8e1f26);transition:width .2s}
+#sw,#st{font-size:.8rem;color:#e8c46a;text-shadow:0 1px 3px #000}
+#top{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;display:flex;gap:6px}#top button{padding:6px 10px;font-size:.8rem}
+#msg{position:absolute;left:50%;bottom:34%;transform:translateX(-50%);max-width:min(480px,86vw);background:rgba(10,8,6,.85);border:1px solid #6b5326;border-radius:10px;padding:10px 16px;text-align:center;opacity:0;transition:opacity .25s}#msg.on{opacity:1}
+#hint{position:absolute;left:50%;bottom:24%;transform:translateX(-50%);color:#e8c46a;text-shadow:0 1px 4px #000}
+#camzone{position:fixed;top:0;right:0;bottom:0;left:38%;pointer-events:auto;touch-action:none;z-index:1}
+#touch{position:absolute;inset:0;z-index:2;pointer-events:none}
+#joy{position:absolute;left:calc(22px + env(safe-area-inset-left,0px));bottom:calc(26px + env(safe-area-inset-bottom,0px));width:132px;height:132px;border-radius:50%;background:rgba(255,255,255,.07);border:2px solid rgba(232,196,106,.45);touch-action:none}
+#knob{position:absolute;left:41px;top:41px;width:50px;height:50px;border-radius:50%;background:rgba(224,84,91,.75);pointer-events:none}
+#btns{position:absolute;right:calc(14px + env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:repeat(3,62px);gap:8px}
+#btns button{pointer-events:auto;width:62px;height:52px;padding:0;font-size:.72rem;border-radius:12px;touch-action:none}#btns button.on{background:#8e1f26}
+body.nt #touch{display:none}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="load" class="scr"><h1>ANX4 PIRATES</h1><div class="bar"><i id="lb"></i></div><p id="lt">Loading…</p></div>
+<div id="menu" class="scr" hidden><h1>ANX4 PIRATES</h1><p>Explore the island. Learn the sword. Survive the training dummy.</p>
+<div class="row"><button id="play" class="pri">PLAY</button><button id="fs">Fullscreen</button></div>
+<p class="keys">PC: WASD move · Mouse look (click to capture) · Space jump · Shift run · E draw/sheathe · Left click attack (tap again to combo) · Right click block · V victory · F talk · Wheel zoom<br>Phone: left stick moves, drag the right side to look, use the buttons.</p><p id="warn" class="keys" style="color:#e0545b"></p></div>
+<div id="hud" hidden>
+ <div id="stats"><div class="hp"><i id="hp"></i></div><div id="sw">Sword: sheathed</div><div id="st"></div></div>
+ <div id="top"><button id="fs2">⛶ Fullscreen</button><button id="xfs" hidden>Exit fullscreen</button><button id="tg">Controls</button></div>
+ <div id="msg"></div><div id="hint"></div>
+ <div id="camzone"></div>
+ <div id="touch"><div id="joy"><i id="knob"></i></div>
+ <div id="btns"><button data-k="jump">Jump</button><button data-k="run">Run</button><button data-k="attack">Attack</button><button data-k="block">Block</button><button data-k="sword">Sword</button><button data-k="victory">Victory</button><button data-k="interact">Talk</button></div></div>
+</div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>
